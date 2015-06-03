@@ -1,0 +1,15 @@
+{
+  "name": "transport-feed",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "morganherlocker",
+  "license": "MIT",
+  "dependencies": {
+    "request": "^2.57.0",
+    "turf": "^2.0.2"
+  }
+}
