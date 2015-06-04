@@ -3,17 +3,25 @@ var turf = require('turf')
 var fs = require('fs')
 
 var buses = {}
+var currentFile = ''
 
 setInterval(function(){
   request('http://api.metro.net/agencies/lametro/vehicles/', function(err, res, body){
     var data = JSON.parse(body).items
     var time = new Date()
+
+    var file = __dirname + '/out/'+time.getFullYear()+'-'+time.getMonth()+'-'+time.getDay()+'-'+time.getHours()+'.geojson'
+    if(file !== currentFile) {
+      buses = {}
+      currentFile = file
+    }
+
     data.forEach(function(bus){
       if(!buses[bus.id]) {
         buses[bus.id] = {
           route_id: bus.route_id,
           run_id: bus.run_id,
-          route: turf.linestring([], {route: bus.route_id, run: bus.run_id}),
+          route: turf.linestring([], {route: bus.route_id, run: bus.run_id, times: []}),
           locations: turf.featurecollection([])
         }
       }
@@ -24,17 +32,10 @@ setInterval(function(){
             bus.longitude,
             bus.latitude
           ])
-
-        /*buses[bus.id].locations.features.push(
-          turf.point([
-              bus.longitude,
-              bus.latitude
-            ],
-            {time: time}
-          ))*/
+        buses[bus.id].route.properties.times.push(time.getMinutes()+':'+time.getSeconds())
       }
     })
-    fs.writeFileSync(__dirname+'/data.json', JSON.stringify(getTraces(buses)))
+    fs.writeFileSync(file, JSON.stringify(getTraces(buses)))
   })
 }, 10000)
 
